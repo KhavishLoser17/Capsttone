@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    font-family: 'Nunito', sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+.transition-all {
+    transition: all 0.5s ease;
+}
+
+.main-content {
+    position: relative;
+    z-index: 1;
+}
+
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../../img/jvdlogo.png');
+    background-repeat: no-repeat;
+    background-size: 40vw;
+    background-position: center;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+.service-box:hover .service-image {
+    transform: scale(1.1);
+}
+
+/* Animation for hover effect */
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.swiper-slide{
+    gap: 5px;
+    display: flex!important;
+    align-items: center!important;
+    justify-content: center!important;
+    flex-direction: column!important;
+}
+
+.swiper-container::-webkit-scrollbar {
+    display: none;
+}
+
+.swiper-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+
+
+/* sidebar scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cfcfcf;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #707070;
+}
+
+.Btn {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    position: relative;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.svgContainer {
+    width: 100px; /* You can set this to your desired width */
+    height: 45px; /* And this to the desired height */
+    display: flex;
+    color: #FF0000;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    letter-spacing: 0.8px;
+    border-radius: 10px;
+    transition: all 0.3s;
+    border: 1px solid rgba(156, 156, 156, 0.466);
+}
+
+.BG {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: #ff0000;
+    z-index: -1;
+    border-radius: 10px;
+    pointer-events: none;
+    transition: all 0.3s;
+}
+
+.Btn:hover {
+    transform: scale(1.1);
+}
+
+.Btn:hover .svgContainer {
+    background-color: transparent;
+    border-color: rgba(255, 110, 110, 0.466);
+    backdrop-filter: blur(4px);
+    color: #fff;
+}
+
+.Btn:hover .BG {
+    transform: rotate(35deg);
+    transform-origin: bottom;
+    transition: transform 0.3s ease-in-out;
+}
+
