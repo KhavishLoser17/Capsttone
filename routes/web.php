@@ -15,7 +15,8 @@ use App\Http\Controllers\ReflectionController;
 // use App\Http\Controllers\TwoFactorController;
 // use App\Http\Middleware\Verify2FAMiddleware;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Request;
 
 
 
@@ -27,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [ClientController::class, 'login'])->name('login');
 Route::post('/login', [ClientController::class, 'loginPost'])->name('loginPost');
 
-// Route::middleware(['auth.user','prevent.back','twofactor'])->group(function () {
+Route::middleware(['auth.user','prevent.back','twofactor'])->group(function () {
 
     Route::get('/dashboard', [IndexController::class, 'dashboard'])->name('dashboard');
     Route::get('/employeedashboard', [IndexController::class, 'employeedashboard'])->name('employeedashboard');
@@ -119,13 +120,53 @@ Route::post('/login', [ClientController::class, 'loginPost'])->name('loginPost')
     Route::post('/restore-video-hr2/{id}', [ArchiveController::class, 'restoreVideoHR2'])->name('restore.video-hr2');
     Route::delete('/destroy-video-hr2-permanent/{id}', [ArchiveController::class, 'destroyVideoHR2Permanent'])->name('destroy.video-hr2.permanent');
 
-    // });
+    });
 
-    Route::post('/reflection/submit', [ReflectionController::class, 'submit'])->name('reflection.submit');
+    // Route::post('/reflection/submit', [ReflectionController::class, 'submit'])->name('reflection.submit');
+    //     Route::get('/callback', function (Request $request) {
+    //         $token = $request->query('token');
 
+    //         if (!$token) {
+    //             return abort(403, 'Missing token.');
+    //         }
+
+    //         try {
+    //             $response = Http::withToken($token)
+    //                 ->acceptJson()
+    //                 ->post('https://administrative.easetravelandtours.com/v/public/api/v3/emp/auth');
+
+    //             $data = $response->json();
+
+    //             if ($data['code'] === 200) {
+    //                 session([
+    //                     'api_token' => $token,
+    //                     'token' => $token,
+    //                     '_creds' => (object) $data['content'],
+    //                 ]);
+
+    //                 // Redirect depending on role
+    //                 if ($data['content']['emp_acc_role'] === 'admin') {
+    //                     return redirect()->route('dashboard')->with('toast', 'Connected successfully!');
+    //                 } elseif (str_starts_with($data['content']['emp_acc_role'], 'employee')) {
+    //                     return redirect()->route('dashboard')->with('toast', 'Connected successfully!');
+    //                 } else {
+    //                     return redirect()->route('landing_page');
+    //                 }
+    //             } else {
+    //                 return redirect('https://easetravelandtours.com/login');
+    //             }
+    //         } catch (\Throwable $e) {
+    //             return redirect('https://easetravelandtours.com/login');
+    //         }
+    //     });
+    //     Route::get('/check-session', function () {
+    //         return session('_creds') ?? 'NO SESSION';
+    //     });
     // Logout Session or Token
-    Route::post('/logout', [ClientController::class, 'logoutWithToken'])->name('logout');
-
+        Route::get('/logout', function(){
+            session()->flush();
+            return redirect('https://easetravelandtours.com/logout');
+        })->name('logout');
 
     // Client Routes
     Route::get('/', [ClientController::class, 'landing_page'])->name('landing_page');

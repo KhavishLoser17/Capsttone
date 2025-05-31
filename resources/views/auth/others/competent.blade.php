@@ -595,116 +595,118 @@ document.addEventListener('DOMContentLoaded', function() {
     addStatistics();
 });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Dropdown functionality
-            document.querySelector('.dropdown button').addEventListener('click', function() {
-                document.querySelector('.dropdown-menu').classList.toggle('hidden');
-            });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.dropdown')) {
-                    document.querySelector('.dropdown-menu').classList.add('hidden');
-                }
-            });
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Dropdown toggle
+    const dropdownBtn = document.querySelector('.dropdown button');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
 
-            // Filter functionality
-            document.querySelectorAll('.filter-option').forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const filter = this.getAttribute('data-filter');
-                    const rows = document.querySelectorAll('#employee-table tbody tr');
-
-                    rows.forEach(row => {
-                        switch(filter) {
-                            case 'all':
-                                row.classList.remove('hidden');
-                                break;
-                            case 'passed':
-                                row.classList.toggle('hidden', !row.hasAttribute('data-passed'));
-                                break;
-                            case 'not-taken':
-                                row.classList.toggle('hidden', !row.hasAttribute('data-not-taken'));
-                                break;
-                            case 'expert':
-                                row.classList.toggle('hidden', row.getAttribute('data-level') !== 'expert');
-                                break;
-                            case 'novice':
-                                row.classList.toggle('hidden', row.getAttribute('data-level') !== 'novice');
-                                break;
-                        }
-                    });
-
-                    // Update button text to show current filter
-                    const filterText = this.textContent;
-                    document.querySelector('.dropdown button span').textContent = filterText;
-                    document.querySelector('.dropdown-menu').classList.add('hidden');
-                });
-            });
-
-            // Excel Export functionality using SheetJS
-            document.getElementById('export-excel').addEventListener('click', function() {
-                // Create workbook
-                const wb = XLSX.utils.book_new();
-
-                // Extract data from table
-                const table = document.getElementById('employee-table');
-
-                // Get headers
-                const headers = [];
-                table.querySelectorAll('thead th').forEach(th => {
-                    // Remove the icon from the header text
-                    const headerText = th.textContent.replace(/^\s*[\r\n]/gm, '').trim();
-                    headers.push(headerText);
-                });
-
-                // Get visible rows only (respect filtering)
-                const rows = [];
-                table.querySelectorAll('tbody tr:not(.hidden)').forEach(tr => {
-                    const row = [];
-                    tr.querySelectorAll('td').forEach((td, index) => {
-                        // Handle different column types appropriately
-                        if (index === 1) { // Name column with avatar
-                            row.push(td.textContent.trim());
-                        } else if (index === 4) { // Pass Rate column with progress bar
-                            const percentage = td.querySelector('div div').textContent.trim();
-                            row.push(percentage);
-                        } else {
-                            row.push(td.textContent.trim());
-                        }
-                    });
-                    rows.push(row);
-                });
-
-                // Create worksheet with headers and data
-                const wsData = [headers, ...rows];
-                const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-                // Add worksheet to workbook
-                XLSX.utils.book_append_sheet(wb, ws, "Employee Analysis");
-
-                // Generate filename with date
-                const date = new Date().toISOString().slice(0,10);
-                const filename = `Employee_Analysis_Report_${date}.xlsx`;
-
-                // Export to file
-                XLSX.writeFile(wb, filename);
-            });
-
-            // Add some basic styling for dropdown
-            const style = document.createElement('style');
-            style.textContent = `
-                .dropdown-menu {
-                    transition: all 0.2s ease-in-out;
-                }
-                .dropdown-menu.hidden {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                    pointer-events: none;
-                }
-            `;
-            document.head.appendChild(style);
+    if (dropdownBtn && dropdownMenu) {
+        dropdownBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
         });
-        </script>
+
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.dropdown')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Filter functionality
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.addEventListener('click', function (e) {
+            e.preventDefault();
+            const filter = this.getAttribute('data-filter');
+            const rows = document.querySelectorAll('#employee-table tbody tr');
+
+            rows.forEach(row => {
+                switch (filter) {
+                    case 'all':
+                        row.classList.remove('hidden');
+                        break;
+                    case 'passed':
+                        row.classList.toggle('hidden', !row.hasAttribute('data-passed'));
+                        break;
+                    case 'not-taken':
+                        row.classList.toggle('hidden', !row.hasAttribute('data-not-taken'));
+                        break;
+                    case 'expert':
+                        row.classList.toggle('hidden', row.getAttribute('data-level') !== 'expert');
+                        break;
+                    case 'novice':
+                        row.classList.toggle('hidden', row.getAttribute('data-level') !== 'novice');
+                        break;
+                }
+            });
+
+            const filterText = this.textContent;
+            const buttonLabel = document.querySelector('.dropdown button span');
+            if (buttonLabel) {
+                buttonLabel.textContent = filterText;
+            }
+            dropdownMenu.classList.add('hidden');
+        });
+    });
+
+    // Export to PDF using pdfmake with password protection
+    document.getElementById('export-excel').addEventListener('click', function () {
+        const table = document.getElementById('employee-table');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+
+        const body = [headers];
+        table.querySelectorAll('tbody tr:not(.hidden)').forEach(tr => {
+            const cells = tr.querySelectorAll('td');
+            const row = [
+                cells[0]?.textContent.trim() || '',
+                cells[1]?.textContent.trim() || '',
+                cells[2]?.textContent.trim() || '',
+                cells[3]?.textContent.trim() || '',
+                cells[4]?.querySelector('div div')?.textContent.trim() || '',
+                cells[5]?.textContent.trim() || '',
+                cells[6]?.textContent.trim() || '',
+                cells[7]?.textContent.trim() || '',
+            ];
+            body.push(row);
+        });
+
+        const docDefinition = {
+            content: [
+                { text: 'Employee Analysis Report', style: 'header' },
+                {
+                    table: {
+                        headerRows: 1,
+                        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', '*', 'auto'],
+                        body: body
+                    }
+                }
+            ],
+            styles: {
+                header: {
+                    fontSize: 16,
+                    bold: true,
+                    margin: [0, 0, 0, 10]
+                }
+            },
+            userPassword: 'travelandtours',
+            permissions: {
+                printing: 'highResolution',
+                modifying: false,
+                copying: false,
+                annotating: false,
+                fillingForms: false,
+                contentAccessibility: false,
+                documentAssembly: false
+            }
+        };
+
+        pdfMake.createPdf(docDefinition).download(`Employee_Analysis_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    });
+});
+</script>
+
+
+
 @endsection
